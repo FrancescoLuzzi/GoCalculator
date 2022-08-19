@@ -118,6 +118,125 @@ func simple_divide(operands []float64) op_result {
 	return *out
 }
 
+// composed operation
+type composed_operation struct {
+	operands   []*simple_operation
+	operator   base_operation[*simple_operation]
+	wg         *sync.WaitGroup
+	result     float64
+	result_out string
+	error      error
+}
+
+func (s *composed_operation) execute_operation() {
+	result := s.operator(s.operands)
+	if result.error == nil {
+		s.result = result.result
+		s.result_out = result.result_out
+	} else {
+		s.error = result.error
+		s.result = 0
+	}
+	if s.wg != nil {
+		s.wg.Done()
+	}
+}
+
+// composed operator
+func composed_add(operands []simple_operation) op_result {
+	out := new(op_result)
+	operands[0].execute_operation()
+	if operands[0].error != nil {
+		out.error = operands[0].error
+		return *out
+	}
+	out.result = operands[0].result
+	out.result_out = fmt.Sprintf("[%s", operands[0].result_out)
+	for _, x := range operands[1:] {
+		x.execute_operation()
+		if x.error != nil {
+			out.error = x.error
+			return *out
+		}
+		out.result += x.result
+		out.result_out = fmt.Sprintf("+%s", x.result_out)
+	}
+	out.result_out += "]"
+	return *out
+}
+func composed_substract(operands []simple_operation) op_result {
+	out := new(op_result)
+	operands[0].execute_operation()
+	if operands[0].error != nil {
+		out.error = operands[0].error
+		return *out
+	}
+	out.result = operands[0].result
+	out.result_out = fmt.Sprintf("[%s", operands[0].result_out)
+	for _, x := range operands[1:] {
+		x.execute_operation()
+		if x.error != nil {
+			out.error = x.error
+			return *out
+		}
+		out.result -= x.result
+		out.result_out = fmt.Sprintf("-%s", x.result_out)
+	}
+	out.result_out += "]"
+	return *out
+}
+func composed_multiply(operands []simple_operation) op_result {
+	out := new(op_result)
+	operands[0].execute_operation()
+	if operands[0].error != nil {
+		out.error = operands[0].error
+		return *out
+	}
+	out.result = operands[0].result
+	out.result_out = fmt.Sprintf("[%s", operands[0].result_out)
+	for _, x := range operands[1:] {
+		x.execute_operation()
+		if x.error != nil {
+			out.error = x.error
+			return *out
+		}
+		out.result *= x.result
+		out.result_out = fmt.Sprintf("*%s", x.result_out)
+	}
+	out.result_out += "]"
+	return *out
+}
+func composed_divide(operands []simple_operation) op_result {
+	out := new(op_result)
+	operands[0].execute_operation()
+	if operands[0].error != nil {
+		out.error = operands[0].error
+		return *out
+	}
+	out.result = operands[0].result
+	out.result_out = fmt.Sprintf("[%s", operands[0].result_out)
+	for _, x := range operands[1:] {
+		x.execute_operation()
+		if x.error != nil {
+			out.error = x.error
+			return *out
+		} else if x.result == 0 {
+			out.result = 0
+			tmp := "Error, can divide by 0!\n{ "
+			for _, y := range operands[:len(x.operands)-1] {
+				tmp += fmt.Sprintf("%.2f, ", y)
+			}
+			tmp += fmt.Sprintf("%.2f }", x.operands[len(x.operands)-1])
+			out.error = errors.New(tmp)
+			return *out
+		}
+		out.result /= x.result
+		out.result_out = fmt.Sprintf("/%s", x.result_out)
+	}
+	out.result_out += "]"
+	return *out
+}
+
 func handle_multiple_workers(multiCmd *flag.FlagSet, number_of_workers *int) {
 	// if not enough arguments
 	if len(os.Args) < 3 {
