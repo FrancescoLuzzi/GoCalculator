@@ -286,11 +286,31 @@ func main() {
 	switch os.Args[1] {
 	case "multi":
 		handle_multiple_workers(multiCmd, number_of_workers)
+		break
 	case "simple":
 		fmt.Println("simple CMD")
+		operand1 := new(simple_operation)
+		operand1.operands = []float64{1, 3}
+		operand1.operator = simple_add
 
+		operand2 := new(simple_operation)
+		operand2.operands = []float64{1, 0}
+		operand2.operator = simple_multiply
+
+		comp_op := new(composed_operation)
+		comp_op.operands = []*simple_operation{operand1, operand2}
+		comp_op.operator = composed_divide
+
+		comp_op.execute_operation()
+		if comp_op.error == nil {
+			fmt.Printf("Execution ended ok! %s\nWith result: %.2f", comp_op.result_out, comp_op.result)
+		} else {
+			fmt.Println(comp_op.error)
+		}
+		break
 	case "from_file":
 		fmt.Println("from_file CMD")
+		break
 	default:
 		fmt.Println("You need to enter a basic comand:\n-multi\n-simple\n-from_file")
 		os.Exit(NO_BASE_CMD_ERROR)
