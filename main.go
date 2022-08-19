@@ -128,22 +128,22 @@ type composed_operation struct {
 	error      error
 }
 
-func (s *composed_operation) execute_operation() {
-	result := s.operator(s.operands)
+func (c *composed_operation) execute_operation() {
+	result := c.operator(c.operands)
 	if result.error == nil {
-		s.result = result.result
-		s.result_out = result.result_out
+		c.result = result.result
+		c.result_out = result.result_out
 	} else {
-		s.error = result.error
-		s.result = 0
+		c.error = result.error
+		c.result = 0
 	}
-	if s.wg != nil {
-		s.wg.Done()
+	if c.wg != nil {
+		c.wg.Done()
 	}
 }
 
 // composed operator
-func composed_add(operands []simple_operation) op_result {
+func composed_add(operands []*simple_operation) op_result {
 	out := new(op_result)
 	operands[0].execute_operation()
 	if operands[0].error != nil {
@@ -159,12 +159,12 @@ func composed_add(operands []simple_operation) op_result {
 			return *out
 		}
 		out.result += x.result
-		out.result_out = fmt.Sprintf("+%s", x.result_out)
+		out.result_out += fmt.Sprintf("+%s", x.result_out)
 	}
 	out.result_out += "]"
 	return *out
 }
-func composed_substract(operands []simple_operation) op_result {
+func composed_substract(operands []*simple_operation) op_result {
 	out := new(op_result)
 	operands[0].execute_operation()
 	if operands[0].error != nil {
@@ -180,12 +180,12 @@ func composed_substract(operands []simple_operation) op_result {
 			return *out
 		}
 		out.result -= x.result
-		out.result_out = fmt.Sprintf("-%s", x.result_out)
+		out.result_out += fmt.Sprintf("-%s", x.result_out)
 	}
 	out.result_out += "]"
 	return *out
 }
-func composed_multiply(operands []simple_operation) op_result {
+func composed_multiply(operands []*simple_operation) op_result {
 	out := new(op_result)
 	operands[0].execute_operation()
 	if operands[0].error != nil {
@@ -201,12 +201,12 @@ func composed_multiply(operands []simple_operation) op_result {
 			return *out
 		}
 		out.result *= x.result
-		out.result_out = fmt.Sprintf("*%s", x.result_out)
+		out.result_out += fmt.Sprintf("*%s", x.result_out)
 	}
 	out.result_out += "]"
 	return *out
 }
-func composed_divide(operands []simple_operation) op_result {
+func composed_divide(operands []*simple_operation) op_result {
 	out := new(op_result)
 	operands[0].execute_operation()
 	if operands[0].error != nil {
@@ -222,16 +222,14 @@ func composed_divide(operands []simple_operation) op_result {
 			return *out
 		} else if x.result == 0 {
 			out.result = 0
-			tmp := "Error, can divide by 0!\n{ "
-			for _, y := range x.operands[:len(x.operands)-1] {
-				tmp += fmt.Sprintf("%.2f, ", y)
-			}
-			tmp += fmt.Sprintf("%.2f }", x.operands[len(x.operands)-1])
+			tmp := "Error, can't divide by 0!\n"
+			tmp += x.result_out
+			tmp += "=0"
 			out.error = errors.New(tmp)
 			return *out
 		}
 		out.result /= x.result
-		out.result_out = fmt.Sprintf("/%s", x.result_out)
+		out.result_out += fmt.Sprintf("/%s", x.result_out)
 	}
 	out.result_out += "]"
 	return *out
