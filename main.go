@@ -223,7 +223,7 @@ func composed_divide(operands []simple_operation) op_result {
 		} else if x.result == 0 {
 			out.result = 0
 			tmp := "Error, can divide by 0!\n{ "
-			for _, y := range operands[:len(x.operands)-1] {
+			for _, y := range x.operands[:len(x.operands)-1] {
 				tmp += fmt.Sprintf("%.2f, ", y)
 			}
 			tmp += fmt.Sprintf("%.2f }", x.operands[len(x.operands)-1])
@@ -290,6 +290,7 @@ func main() {
 		handle_multiple_workers(multiCmd, number_of_workers)
 	case "simple":
 		fmt.Println("simple CMD")
+
 	case "from_file":
 		fmt.Println("from_file CMD")
 	default:
