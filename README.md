@@ -2,4 +2,4 @@
 
 ## Usage
 
-go run main.go multi --number 10
+go run main.go multi --number 10 --composed
