@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"strings"
@@ -12,6 +13,29 @@ import (
 
 const NO_BASE_CMD_ERROR = 1
 const WRONG_MULTI_CMD_ERROR = 2
+
+// loggers
+var (
+	INFO_LOGGER    *log.Logger
+	WARNING_LOGGER *log.Logger
+	ERROR_LOGGER   *log.Logger
+)
+
+// init loggers
+func init_loggers(on_file bool) {
+	INFO_LOGGER = log.New(os.Stdout, "INFO: ", log.LstdFlags)
+	WARNING_LOGGER = log.New(os.Stdout, "INFO: ", log.LstdFlags)
+	ERROR_LOGGER = log.New(os.Stdout, "INFO: ", log.LstdFlags)
+	if on_file {
+		file, err := os.OpenFile("calculator_log.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+		if err != nil {
+			ERROR_LOGGER.Fatal("Cannot open calculator_log.txt file")
+		}
+		INFO_LOGGER.SetOutput(file)
+		WARNING_LOGGER.SetOutput(file)
+		ERROR_LOGGER.SetOutput(file)
+	}
+}
 
 // basic operators
 
@@ -91,7 +115,7 @@ func simple_operator(operands []float64, operator_str string) op_result {
 		out.result, err = op(out.result, x)
 		// this means division by zero
 		if err != nil {
-			tmp := fmt.Sprintf("%s\n(", err.Error())
+			tmp := fmt.Sprintf("%s -> (", err.Error())
 			for _, y := range operands[:len(operands)-1] {
 				tmp += fmt.Sprintf("%.2f %s", y, operator_str)
 			}
@@ -213,10 +237,7 @@ func composed_operand(operands []operation, operator_str string) op_result {
 		}
 		out.result, err = op(out.result, tmp_res)
 		if err != nil {
-			tmp := fmt.Sprintln(err.Error())
-			tmp += tmp_out
-			tmp += "=0"
-			out.error = errors.New(tmp)
+			out.error = fmt.Errorf(("%s -> %s=0"), err.Error(), tmp_out)
 			return *out
 		}
 		out.result_out += fmt.Sprintf("%s%s", operator_str, tmp_out)
@@ -233,9 +254,9 @@ func print_output(operations []operation) {
 	for i, op := range operations {
 		res, out, err = op.get_results()
 		if err == nil {
-			fmt.Printf("Go-routine %d -> %s=%.2f\n", i+1, out, res)
+			INFO_LOGGER.Printf("Go-routine %d -> %s=%.2f\n", i+1, out, res)
 		} else {
-			fmt.Printf("Go-routine %d Error -> %s\n", i+1, err)
+			ERROR_LOGGER.Printf("Go-routine %d Error -> %s\n", i+1, err)
 		}
 	}
 }
@@ -309,6 +330,11 @@ func handle_multiple_workers(multiCmd *flag.FlagSet, number_of_operations *int, 
 	goroutines_wg.Wait()
 	print_output(operations)
 
+}
+
+// init app
+func init() {
+	init_loggers(false)
 }
 
 func main() {
