@@ -8,14 +8,19 @@ import (
 )
 
 func Parse_string(op_string string) (Operation, error) {
+	chars_search := regexp.MustCompile("[a-zA-Z]")
+	if chars_search.Find([]byte(op_string)) != nil {
+		return nil, errors.New("character found!")
+	}
+
 	if strings.Count(op_string, "(") != strings.Count(op_string, ")") {
-		return nil, errors.New("missmatching round parentheses")
+		return nil, errors.New("missmatching round parentheses!")
 	}
 	if strings.Count(op_string, "[") != strings.Count(op_string, "]") {
-		return nil, errors.New("missmatching square parentheses")
+		return nil, errors.New("missmatching square parentheses!")
 	}
 	if strings.Count(op_string, "{") != strings.Count(op_string, "}") {
-		return nil, errors.New("missmatching curly parentheses")
+		return nil, errors.New("missmatching curly parentheses!")
 	}
 	op_string = strings.ReplaceAll(strings.Trim(op_string, " \t\n"), ",", ".")
 
