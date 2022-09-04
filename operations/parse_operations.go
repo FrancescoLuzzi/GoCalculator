@@ -44,3 +44,14 @@ func Parse_string(op_string string) (Operation, error) {
 	operand1.Operator = "*"
 	return Operation(operand1), nil
 }
+
+// func get_operation_from_string(op_string *string) (*Operation, error) {
+// iterate over the string, if numbers are found put them in a single operation,
+// if a parenthesis is found, call get_operation_in_parenthesis with the index of the found parentheis,
+// it will return an *Operation, the current index in the string and a possible error
+// }
+
+// func get_operation_in_parenthesis(op_string *string, parenthesis_index int) (*Operation, int, error) {
+// iterate the string from the starting parenthesis, if an other starting parenthesis is found recurse
+// error logics: parenthesis balance { [ ( order (not { ( [)
+// }
