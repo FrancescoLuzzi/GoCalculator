@@ -24,12 +24,13 @@ func Parse_string(op_string string) (Operation, error) {
 	}
 	op_string = strings.ReplaceAll(strings.Trim(op_string, " \t\n"), ",", ".")
 
-	float_number := "(\\d+\\.*\\d*)"
+	float_number := "(\\d+[\\.\\d+]*)"
+	broken_float_number := "(\\d\\.[^\\d]+)"
 	open_par := "(\\(|\\[|\\{)"
 	close_par := "(\\)|\\]|\\})"
 	operand := "(\\+|\\-|\\*|/)"
 
-	reg := fmt.Sprintf("((%s%s)|(%s%s)|(%s%s$)|(^%s%s))", operand, close_par, open_par, operand, float_number, operand, operand, float_number)
+	reg := fmt.Sprintf("((%s%s)|(%s%s)|(%s%s$)|(^%s%s)|%s|%s$)", operand, close_par, open_par, operand, float_number, operand, operand, float_number, broken_float_number, "\\.")
 	wrong_op := regexp.MustCompile(reg)
 
 	if wrong_found := wrong_op.Find([]byte(op_string)); wrong_found != nil {
