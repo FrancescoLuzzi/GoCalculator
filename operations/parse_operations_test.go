@@ -8,7 +8,7 @@ import (
 var operators = [4]string{"+", "-", "/", "*"}
 var open_par = [4]string{"", "(", "[", "{"}
 var close_par = [4]string{"", ")", "]", "}"}
-var numbers = [5]string{"3.1415", "3", "7,9", "g", "O"}
+var numbers = [6]string{"3.1415", "3", "3.", "7,9", "g", "O"}
 
 func TestWrongParseSimple(t *testing.T) {
 	base_op := "%s%s%s%s"
@@ -32,5 +32,14 @@ func TestWrongParseSimple(t *testing.T) {
 			}
 		}
 	}
+}
 
+func TestWrongParseCustom(t *testing.T) {
+	op := "4*3."
+	_, err := Parse_string(op)
+	if err == nil {
+		t.Errorf("%s did not errored out", op)
+	} else {
+		t.Logf("%s did errored out -> %s\n", op, err)
+	}
 }
