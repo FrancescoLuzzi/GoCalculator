@@ -7,42 +7,55 @@ import (
 	"strings"
 )
 
+var chars_search = regexp.MustCompile("[a-zA-Z]")
+var float_number = "(\\d+[\\.\\d+]*)"
+var broken_float_number = "(\\d\\.[^\\d]+)"
+var open_par = "(\\(|\\[|\\{)"
+var close_par = "(\\)|\\]|\\})"
+var operand = "(\\+|\\-|\\*|/)"
+var wrong_op = regexp.MustCompile(
+	fmt.Sprintf(
+		"((%s%s)|(%s%s)|(%s%s$)|(^%s%s)|%s|%s$)",
+		operand, close_par,
+		open_par, operand,
+		float_number, operand,
+		operand, float_number,
+		broken_float_number,
+		"\\.",
+	),
+)
+
 func Parse_string(op_string string) (Operation, error) {
-	chars_search := regexp.MustCompile("[a-zA-Z]")
-	if chars_search.Find([]byte(op_string)) != nil {
-		return nil, errors.New("character found!")
+	if err := check_basic_structure(&op_string); err != nil {
+		return nil, err
 	}
-
-	if strings.Count(op_string, "(") != strings.Count(op_string, ")") {
-		return nil, errors.New("missmatching round parentheses!")
-	}
-	if strings.Count(op_string, "[") != strings.Count(op_string, "]") {
-		return nil, errors.New("missmatching square parentheses!")
-	}
-	if strings.Count(op_string, "{") != strings.Count(op_string, "}") {
-		return nil, errors.New("missmatching curly parentheses!")
-	}
-	op_string = strings.ReplaceAll(strings.Trim(op_string, " \t\n"), ",", ".")
-
-	float_number := "(\\d+[\\.\\d+]*)"
-	broken_float_number := "(\\d\\.[^\\d]+)"
-	open_par := "(\\(|\\[|\\{)"
-	close_par := "(\\)|\\]|\\})"
-	operand := "(\\+|\\-|\\*|/)"
-
-	reg := fmt.Sprintf("((%s%s)|(%s%s)|(%s%s$)|(^%s%s)|%s|%s$)", operand, close_par, open_par, operand, float_number, operand, operand, float_number, broken_float_number, "\\.")
-	wrong_op := regexp.MustCompile(reg)
-
-	if wrong_found := wrong_op.Find([]byte(op_string)); wrong_found != nil {
-		return nil, fmt.Errorf("wrong operation format %s", wrong_found)
-	}
-
 	// just to return something
 	float_seed := float64(69)
 	operand1 := new(Simple_operation)
 	operand1.Operands = []float64{float_seed, float_seed * 2}
 	operand1.Operator = "*"
 	return Operation(operand1), nil
+}
+
+func check_basic_structure(op_string *string) error {
+	if chars_search.Find([]byte(*op_string)) != nil {
+		return errors.New("character found")
+	}
+	if strings.Count(*op_string, "(") != strings.Count(*op_string, ")") {
+		return errors.New("missmatching round parentheses")
+	}
+	if strings.Count(*op_string, "[") != strings.Count(*op_string, "]") {
+		return errors.New("missmatching square parentheses")
+	}
+	if strings.Count(*op_string, "{") != strings.Count(*op_string, "}") {
+		return errors.New("missmatching curly parentheses")
+	}
+	*op_string = strings.ReplaceAll(strings.Trim(*op_string, " \t\n"), ",", ".")
+	*op_string = strings.ReplaceAll(*op_string, " ", "")
+	if wrong_found := wrong_op.Find([]byte(*op_string)); wrong_found != nil {
+		return fmt.Errorf("wrong operation format %s", wrong_found)
+	}
+	return nil
 }
 
 // func get_operation_from_string(op_string *string) (*Operation, error) {

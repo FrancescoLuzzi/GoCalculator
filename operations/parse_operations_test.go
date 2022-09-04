@@ -6,8 +6,6 @@ import (
 )
 
 var operators = [4]string{"+", "-", "/", "*"}
-var open_par = [4]string{"", "(", "[", "{"}
-var close_par = [4]string{"", ")", "]", "}"}
 var numbers = [6]string{"3.1415", "3", "3.", "7,9", "g", "O"}
 
 func TestWrongParseSimple(t *testing.T) {
