@@ -79,8 +79,11 @@ func generate_composed_operation(seed int, wg *sync.WaitGroup) *operations.Compo
 	comp_op2.Operands = []operations.Operation{operand3, operand4}
 	comp_op2.Operator = "-"
 
+	single_op := new(operations.Single_operand)
+	single_op.Value = 7.0
+
 	comp_op := new(operations.Composed_operation)
-	comp_op.Operands = []operations.Operation{comp_op1, comp_op2}
+	comp_op.Operands = []operations.Operation{comp_op1, comp_op2, single_op}
 	comp_op.Operator = "+"
 	comp_op.Set_wait_group(wg)
 	return comp_op
@@ -138,8 +141,8 @@ func main() {
 	multiCmd := flag.NewFlagSet("multi", flag.ExitOnError)
 	number_of_operations := multiCmd.Int("number", 0, "Number of operations done, the operations are done in a goroutine.\nThis must be >0")
 	is_composed := multiCmd.Bool("composed", false, "Determine if operations are composed")
-	if len(os.Args) < 2 {
-		fmt.Println("You need to enter a basic comand:\n-multi\n-simple\n-from_file")
+	if len(os.Args) < 1 {
+		fmt.Println("You need to enter a basic comand:\n- multi\n- simple\n- from_file")
 		os.Exit(NO_BASE_CMD_ERROR)
 	}
 

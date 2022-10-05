@@ -50,18 +50,42 @@ type Operation interface {
 	Set_wait_group(*sync.WaitGroup)
 }
 
-// Simple_operation type definition
-type Simple_operation struct {
-	Operands   []float64
-	Operator   string
-	wg         *sync.WaitGroup
+// operations result's type definition
+type op_result struct {
 	result     float64
 	result_out string
 	error      error
 }
 
-// operations result's type definition
-type op_result struct {
+// Single_operand
+type Single_operand struct {
+	Value float64
+	wg    *sync.WaitGroup
+}
+
+// Single_operand's execute func definition
+// it just unlocks it's WaitGroup
+func (s *Single_operand) Execute_operation() {
+	if s.wg != nil {
+		s.wg.Done()
+	}
+}
+
+// Single_operand's Get_results func definition
+func (s *Single_operand) Get_results() (float64, string, error) {
+	return s.Value, fmt.Sprintf("%.2f", s.Value), nil
+}
+
+// Single_operand's Set_wait_group func definition
+func (s *Single_operand) Set_wait_group(new_wg *sync.WaitGroup) {
+	s.wg = new_wg
+}
+
+// Simple_operation type definition
+type Simple_operation struct {
+	Operands   []float64
+	Operator   string
+	wg         *sync.WaitGroup
 	result     float64
 	result_out string
 	error      error
