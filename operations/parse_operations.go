@@ -74,19 +74,24 @@ func is_char_number(char byte) bool {
 	this will be enought to decide the formation of the resulting operation
 
 	EXAMPLE:
-	1.3+56{9/[3*6*(6+8)]} -> +{/[**(+)]}
+	1.3+56*{-9/[3*6*(6+8*9)]} -> +{/[**(+*)]}
 	Composed_operation(+,
-		Single_operand,
-		Composed_operation(/,
-			Single_operand,
-			Composed_operation(*,
-				Single_operand,
-				Single_operand,
-				Simple_operation(+)
+		Single_operand(1.3),
+		Composed_operation(*
+			Single_operand(56),
+			Composed_operation(/,
+				Single_operand(-9),
+				Composed_operation(*,
+					Single_operand(3),
+					Single_operand(6),
+					Composed_operation(+,
+						Single_operand(6),
+						Simple_operation(8*9)
+					)
+				)
 			)
 		)
 	)
-
 	Then procede and create the Operation
 */
 
