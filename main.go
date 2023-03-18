@@ -141,7 +141,7 @@ func main() {
 	multiCmd := flag.NewFlagSet("multi", flag.ExitOnError)
 	number_of_operations := multiCmd.Int("number", 0, "Number of operations done, the operations are done in a goroutine.\nThis must be >0")
 	is_composed := multiCmd.Bool("composed", false, "Determine if operations are composed")
-	if len(os.Args) < 1 {
+	if len(os.Args) == 1 {
 		fmt.Println("You need to enter a basic comand:\n- multi\n- simple\n- from_file")
 		os.Exit(NO_BASE_CMD_ERROR)
 	}
