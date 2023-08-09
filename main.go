@@ -21,11 +21,19 @@ var (
 	ERROR_LOGGER   *log.Logger
 )
 
+// colors
+const (
+	RED         = "\033[2;31m"
+	GREEN       = "\033[2;32m"
+	YELLOW      = "\033[2;33m"
+	RESET_COLOR = "\033[0m"
+)
+
 // init loggers
 func init_loggers(on_file bool) {
-	INFO_LOGGER = log.New(os.Stdout, "INFO: ", log.LstdFlags)
-	WARNING_LOGGER = log.New(os.Stdout, "INFO: ", log.LstdFlags)
-	ERROR_LOGGER = log.New(os.Stdout, "INFO: ", log.LstdFlags)
+	INFO_LOGGER = log.New(os.Stdout, fmt.Sprintf("%sINFO:%s ", GREEN, RESET_COLOR), log.LstdFlags)
+	WARNING_LOGGER = log.New(os.Stdout, fmt.Sprintf("%sWARN:%s ", YELLOW, RESET_COLOR), log.LstdFlags)
+	ERROR_LOGGER = log.New(os.Stdout, fmt.Sprintf("%sERR:%s ", RED, RESET_COLOR), log.LstdFlags)
 	if on_file {
 		file, err := os.OpenFile("calculator_log.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 		if err != nil {
